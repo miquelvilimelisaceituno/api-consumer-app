@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise Sprint 3 APIs, Fetch and Axios</title>
+</head>
+<body>
+    <div id="app-container">
+        <header>
+            <h1>APIs, Fetch y Axios</h1>
+            <nav id="controls">
+                <select name="Selecciona una API" id="api-selector">
+                    <option value="fetch">Utiliza Fetch</option>
+                    <option value="axios">Utiliza Axios</option>
+                </select>
+                <input type="text" id="search-input" placeholder="Busca...">
+                <button id="fetch-btn">Obtener Datos</button>
+            </nav>   
+        </header>
+        <main id="main-content">
+            <div id="loading">Carregant...</div>
+            <div id="error-message" hidden></div>
+            <section id="results" hidden></section>
+            <nav id="pagination"></nav>
+        </main>
+    </div>
+</body>
+</html>
