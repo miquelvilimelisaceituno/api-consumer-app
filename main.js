@@ -1,9 +1,32 @@
 import axios from 'axios';
 
 const API_URL = 'https://jsonplaceholder.typicode.com/posts';
-let currentPage = 1;
-const itemsPerPage = 10; // Quants ítems per pàgina vols mostrar
 
+async function fetchDataWithFetch(page = 1, limit = 10, query = '') {
+    const url = new URL(API_URL);
+    url.searchParams.set('_page', page);
+    url.searchParams.set('_limit', limit);
+    if (query){
+        url.searchParams.set('q', query)
+    }
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status}`);
+    }
+
+    const totalCount = response.headers.get('X-Total-Count');
+
+    const data = await response.json();
+
+    return {
+        data,
+        totalCount: Number(totalCount)
+    };
+
+
+}
 // Referències als elements del DOM:
 // apiSelector, searchInput, fetchButton, loadingElement, errorElement, resultsContainer, paginationContainer
 // ... (Obtén les referències amb document.getElementById)
