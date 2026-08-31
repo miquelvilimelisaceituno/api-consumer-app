@@ -13,7 +13,7 @@ body {
 
 /* Utilidad para ocultar elementos */
 .hidden {
-    display: none !important;
+    display: none;
 }
 
 /* Contenedor principal */

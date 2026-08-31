@@ -1,74 +1,92 @@
-import axios from 'axios';
 let currentPage = 1;
 const limit = 10; // Quants ítems per pàgina vols mostrar
 
 const API_URL = 'https://jsonplaceholder.typicode.com/posts';
 
-// Referències als elements del DOM:
-// apiSelector, searchInput, fetchButton, loadingElement, errorElement, resultsContainer, paginationContainer
-// ... (Obtén les referències amb document.getElementById)
+const apiSelector = document.getElementById("api-selector");
+const searchInput = document.getElementById("search-input");
+const fetchButton = document.getElementById("fetch-btn");
+const loadingElement = document.getElementById("loading");
+const errorElement = document.getElementById("error-message");
+const resultsContainer = document.getElementById("results");
+const paginationContainer = document.getElementById("pagination")
 
-// Event Listener per al botó "Obtenir Dades"
-// ... (Afegeix l'event listener al fetchButton per cridar fetchData)
+fetchButton.addEventListener('click', () => {
+    fetchData()
+});
 
-// Funció per mostrar l'indicador de càrrega
 function showLoading() {
-    // ... (Elimina la classe 'hidden' de loadingElement)
+   loadingElement.classList.remove("hidden"); 
 }
 
-// Funció per amagar l'indicador de càrrega
 function hideLoading() {
-    // ... (Afegeix la classe 'hidden' a loadingElement)
+    loadingElement.classList.add("hidden");
 }
 
-// Funció per mostrar missatges d'error
 function showError(message) {
-    // ... (Actualitza el text de errorElement i elimina la classe 'hidden')
+    errorElement.textContent = message;
+    errorElement.classList.remove("hidden");
 }
 
-// Funció per amagar missatges d'error
 function hideError() {
-    // ... (Afegeix la classe 'hidden' a errorElement)
+    errorElement.classList.add("hidden");
 }
 
-// Funció principal per obtenir dades (a implementar)
 async function fetchData() {
-    const searchTerm = /* ... (Obtén el valor de searchInput) */;
-    const useAxios = /* ... (Comprova si apiSelector.value és 'axios') */;
+    const searchTerm = searchInput.value;
+    const useAxios = apiSelector.value === 'axios';
     
     showLoading();
     hideError();
-    // ... (Neteja resultats anteriors i paginació anterior)
+    resultsContainer.innerHTML = '';
+    paginationContainer.innerHTML = '';
 
     try {
+        let result;
         if (useAxios) {
-            // ... (Crida la funció per obtenir dades amb Axios)
+            result = await fetchDataWithAxios(searchTerm);
         } else {
-            // ... (Crida la funció per obtenir dades amb Fetch)
+            result = await fetchDataWithFetch(searchTerm);
         }
+        displayResults(result.data, result.totalCount);
     } catch (error) {
-        // ... (Gestiona errors inesperats si s'escapen de les funcions específiques de Fetch/Axios)
+        showError(error.message);
     } finally {
         hideLoading();
     }
 }
 
-// Funció per a la visualització dels resultats i la paginació (a implementar)
 function displayResults(items, totalItems) {
-    // ... (Implementa la lògica per mostrar cada "ítem" com una targeta i per cridar setupPagination)
+    resultsContainer.classList.remove("hidden");
+    items.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `<h3>${item.title}</h3><p>${item.body}</p>`;
+        resultsContainer.appendChild(card);
+    });
+    setupPagination(totalItems);
 }
 
 function setupPagination(totalItems) {
-    // ... (Implementa la lògica per crear els botons de paginació)
+    const totalPages = Math.ceil(totalItems / limit);
+    for (let i = 1; i <= totalPages; i++) {
+        const button = document.createElement("button");
+        button.textContent = i;
+        button.disabled = i === currentPage;
+        button.addEventListener("click", () => {
+            currentPage = i;
+            fetchData();
+        });
+        paginationContainer.appendChild(button);
+    }
 }
 
-// Funció per obtenir dades amb Fetch (a implementar)
 async function fetchDataWithFetch(searchTerm) {
     const url = new URL(API_URL);
-    url.searchParams.set('_page', page);
+    url.searchParams.set('_page', currentPage);
     url.searchParams.set('_limit', limit);
-    if (query){
-        url.searchParams.set('q', query)
+    if (searchTerm){
+        url.searchParams.set('q', searchTerm)
     }
 
     const response = await fetch(url);
@@ -85,19 +103,20 @@ async function fetchDataWithFetch(searchTerm) {
         data,
         totalCount: Number(totalCount)
     };
-
-    displayResults(data, totalCount);
 }
-
-// Funció per obtenir dades amb Axios (a implementar)
-                                                                                    
+                             
 async function fetchDataWithAxios(searchTerm) {
-    // ... (Implementa la petició amb Axios)
     const response = await axios.get(API_URL, {
         params: {
             _page: currentPage,
             _limit: limit,
             q: searchTerm
         }
+        
     });
+
+    return {
+        data: response.data,
+        totalCount: Number(response.headers['x-total-count'])
+    };
 }
